@@ -16,6 +16,7 @@ const AdminSidebar = ({ activeTab, setActiveTab, counts = {} }) => {
         { id: 'classes', label: 'Classes', icon: '🏫', count: counts.classes },
         { id: 'subjects', label: 'Subjects', icon: '📚', count: counts.subjects },
         { id: 'timetable', label: 'Timetable', icon: '⏱️' },
+        { id: 'ai-predictions', label: 'AI Prediction', icon: '🤖' },
       ],
     },
     {
