@@ -133,7 +133,7 @@ const regeneratePrediction = async (req, res) => {
 // @access  Private (Teacher, Admin)
 const getClassRiskMatrix = async (req, res) => {
   try {
-    const { className, section } = req.query;
+    const { className, section, refresh } = req.query;
     const filter = { status: 'Active' };
     if (className && className !== 'All') filter.className = className;
     if (section && section !== 'All') filter.section = section;
@@ -147,9 +147,12 @@ const getClassRiskMatrix = async (req, res) => {
     let highRiskCount = 0;
 
     for (const student of students) {
-      let pred = await PerformancePrediction.findOne({ studentId: student._id }).sort({
-        createdAt: -1,
-      });
+      let pred = null;
+      if (refresh !== 'true') {
+        pred = await PerformancePrediction.findOne({ studentId: student._id }).sort({
+          createdAt: -1,
+        });
+      }
 
       if (!pred) {
         pred = await generateAndSavePrediction(student._id, 'Roster Audit');

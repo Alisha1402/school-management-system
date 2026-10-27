@@ -3,6 +3,8 @@ import api from '../../../services/api';
 
 const AIPredictionsModule = () => {
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+  const [feedback, setFeedback] = useState(null);
   const [matrixData, setMatrixData] = useState(null);
   const [telemetry, setTelemetry] = useState(null);
   const [selectedClass, setSelectedClass] = useState('Class 10');
@@ -11,11 +13,18 @@ const AIPredictionsModule = () => {
   const [selectedStudentModal, setSelectedStudentModal] = useState(null);
   const [recalculatingId, setRecalculatingId] = useState(null);
 
-  const fetchData = async () => {
+  const fetchData = async (isManualRefresh = false) => {
     try {
-      setLoading(true);
+      if (isManualRefresh) {
+        setRefreshing(true);
+        setFeedback(null);
+      } else {
+        setLoading(true);
+      }
+
+      const refreshParam = isManualRefresh ? '&refresh=true' : '';
       const [matrixRes, telRes] = await Promise.all([
-        api.get(`/predictions/class-risk-matrix?className=${encodeURIComponent(selectedClass)}&section=${encodeURIComponent(selectedSection)}`),
+        api.get(`/predictions/class-risk-matrix?className=${encodeURIComponent(selectedClass)}&section=${encodeURIComponent(selectedSection)}${refreshParam}`),
         api.get('/predictions/model-telemetry'),
       ]);
 
@@ -25,15 +34,31 @@ const AIPredictionsModule = () => {
       if (telRes.data.success) {
         setTelemetry(telRes.data.telemetry);
       }
+
+      if (isManualRefresh) {
+        const studentCount = matrixRes.data?.summary?.totalStudents || matrixRes.data?.studentsMatrix?.length || 0;
+        const timeString = new Date().toLocaleTimeString();
+        setFeedback({
+          type: 'success',
+          message: `Predictions refreshed successfully: ${studentCount} students evaluated at ${timeString}.`,
+        });
+      }
     } catch (err) {
       console.error('Failed to fetch prediction telemetry and risk matrix:', err);
+      if (isManualRefresh) {
+        setFeedback({
+          type: 'error',
+          message: err.response?.data?.message || err.message || 'Failed to refresh predictions from AI service.',
+        });
+      }
     } finally {
       setLoading(false);
+      setRefreshing(false);
     }
   };
 
   useEffect(() => {
-    fetchData();
+    fetchData(false);
   }, [selectedClass, selectedSection]);
 
   const handleRecalculate = async (studentId) => {
@@ -41,7 +66,7 @@ const AIPredictionsModule = () => {
       setRecalculatingId(studentId);
       const res = await api.post(`/predictions/generate/${studentId}`);
       if (res.data.success) {
-        await fetchData();
+        await fetchData(false);
         if (selectedStudentModal && selectedStudentModal.studentId === studentId) {
           setSelectedStudentModal(null);
         }
@@ -86,11 +111,44 @@ const AIPredictionsModule = () => {
           <button onClick={() => window.print()} className="btn btn-outline">
             🖨️ Export Risk Report
           </button>
-          <button onClick={fetchData} className="btn btn-primary">
-            🔄 Refresh Predictions
+          <button
+            onClick={() => fetchData(true)}
+            disabled={refreshing || loading}
+            className="btn btn-primary"
+            style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem' }}
+          >
+            {refreshing ? '⏳ Refreshing...' : '🔄 Refresh Predictions'}
           </button>
         </div>
       </div>
+
+      {/* Feedback Banner for Refresh Operation */}
+      {feedback && (
+        <div
+          className="card"
+          style={{
+            padding: '0.75rem 1.25rem',
+            marginBottom: '1.25rem',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            backgroundColor: feedback.type === 'error' ? '#fef2f2' : '#f0fdf4',
+            borderColor: feedback.type === 'error' ? '#fecaca' : '#bbf7d0',
+            color: feedback.type === 'error' ? '#991b1b' : '#166534',
+            fontSize: '0.9rem',
+            fontWeight: 500,
+          }}
+        >
+          <span>{feedback.type === 'error' ? '⚠️ ' : '✅ '}{feedback.message}</span>
+          <button
+            onClick={() => setFeedback(null)}
+            style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '1.1rem', color: 'inherit', padding: 0 }}
+            title="Dismiss message"
+          >
+            &times;
+          </button>
+        </div>
+      )}
 
       {/* 2. Official Pedagogical Disclaimer */}
       <div

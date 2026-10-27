@@ -1331,8 +1331,13 @@ const TeacherDashboard = () => {
               </div>
 
               <div style={{ display: 'flex', alignItems: 'flex-end' }}>
-                <button onClick={fetchRiskMatrix} className="btn btn-outline" style={{ height: '38px' }}>
-                  🔄 Refresh Risk Matrix
+                <button
+                  onClick={fetchRiskMatrix}
+                  disabled={loadingMatrix}
+                  className="btn btn-outline"
+                  style={{ height: '38px', display: 'inline-flex', alignItems: 'center', gap: '0.4rem' }}
+                >
+                  {loadingMatrix ? '⏳ Refreshing...' : '🔄 Refresh Risk Matrix'}
                 </button>
               </div>
             </div>
