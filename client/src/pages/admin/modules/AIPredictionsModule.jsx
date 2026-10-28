@@ -378,69 +378,80 @@ const AIPredictionsModule = () => {
 
       {/* 7. Detailed Diagnostic Modal Dialog */}
       {selectedStudentModal && (
-        <div className="modal-overlay" onClick={() => setSelectedStudentModal(null)}>
+        <div className="modal-backdrop" onClick={() => setSelectedStudentModal(null)}>
           <div className="modal-box" style={{ maxWidth: '650px' }} onClick={(e) => e.stopPropagation()}>
             <div className="modal-header">
-              <h3>Diagnostic AI Report: {selectedStudentModal.studentName}</h3>
-              <button className="close-btn" onClick={() => setSelectedStudentModal(null)}>✖</button>
+              <h3>Diagnostic AI Report: {selectedStudentModal.studentName || 'Student'}</h3>
+              <button className="close-btn" onClick={() => setSelectedStudentModal(null)}>&times;</button>
             </div>
 
-            <div style={{ padding: '1rem 0' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem', background: '#f8fafc', padding: '1rem', borderRadius: '8px' }}>
-                <div>
-                  <div style={{ fontSize: '0.8rem', color: '#64748b' }}>Projected Annual Score</div>
-                  <div style={{ fontSize: '1.75rem', fontWeight: 800, color: '#4f46e5' }}>
-                    {selectedStudentModal.predictedFinalPercentage}%
+            {selectedStudentModal.predictedFinalPercentage === undefined || selectedStudentModal.predictedFinalPercentage === null ? (
+              <div style={{ padding: '2rem 1rem', textAlign: 'center', color: '#64748b' }}>
+                <p style={{ fontSize: '1.05rem', fontWeight: 600, color: '#b45309', marginBottom: '0.5rem' }}>
+                  ⚠️ Diagnostic breakdown data is currently unavailable for this student.
+                </p>
+                <p style={{ fontSize: '0.85rem' }}>
+                  Please click the recalculate (🔄) button in the actions column to generate predictions from the AI microservice.
+                </p>
+              </div>
+            ) : (
+              <div style={{ padding: '1rem 0' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem', background: '#f8fafc', padding: '1rem', borderRadius: '8px' }}>
+                  <div>
+                    <div style={{ fontSize: '0.8rem', color: '#64748b' }}>Projected Annual Score</div>
+                    <div style={{ fontSize: '1.75rem', fontWeight: 800, color: '#4f46e5' }}>
+                      {selectedStudentModal.predictedFinalPercentage}%
+                    </div>
+                    <div style={{ fontSize: '0.75rem', color: '#64748b' }}>
+                      Model Range: [{selectedStudentModal.confidenceInterval?.minPercentage ?? 0}% – {selectedStudentModal.confidenceInterval?.maxPercentage ?? 0}%]
+                    </div>
                   </div>
-                  <div style={{ fontSize: '0.75rem', color: '#64748b' }}>
-                    Model Range: [{selectedStudentModal.confidenceInterval?.minPercentage}% – {selectedStudentModal.confidenceInterval?.maxPercentage}%]
+
+                  <div style={{ textAlign: 'right' }}>
+                    <div style={{ fontSize: '0.8rem', color: '#64748b' }}>CBSE Grade & Risk</div>
+                    <div style={{ fontSize: '1.25rem', fontWeight: 700 }}>Grade {selectedStudentModal.predictedCbseGrade || 'N/A'}</div>
+                    <span className={`status-pill status-${selectedStudentModal.riskLevel === 'Low' ? 'approved' : selectedStudentModal.riskLevel === 'Moderate' ? 'in-progress' : 'danger'}`}>
+                      {selectedStudentModal.riskLevel || 'Unknown'} Risk
+                    </span>
                   </div>
                 </div>
 
-                <div style={{ textAlign: 'right' }}>
-                  <div style={{ fontSize: '0.8rem', color: '#64748b' }}>CBSE Grade & Risk</div>
-                  <div style={{ fontSize: '1.25rem', fontWeight: 700 }}>Grade {selectedStudentModal.predictedCbseGrade}</div>
-                  <span className={`status-pill status-${selectedStudentModal.riskLevel === 'Low' ? 'approved' : selectedStudentModal.riskLevel === 'Moderate' ? 'in-progress' : 'danger'}`}>
-                    {selectedStudentModal.riskLevel} Risk
-                  </span>
+                {/* Feature Drivers */}
+                <h4 style={{ fontSize: '0.9rem', marginBottom: '0.5rem' }}>Key Factor Performance:</h4>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', marginBottom: '1.25rem' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem' }}>
+                    <span>Term Exam Baseline (83.5% weight):</span>
+                    <strong>{selectedStudentModal.midtermExamScore ?? 'N/A'}%</strong>
+                  </div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem' }}>
+                    <span>Homework Completion (5.8% weight):</span>
+                    <strong>{selectedStudentModal.assignmentCompletionRate ?? 'N/A'}%</strong>
+                  </div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem' }}>
+                    <span>Classroom Attendance (2.2% weight):</span>
+                    <strong style={{ color: selectedStudentModal.attendanceRate < 75 ? '#ef4444' : 'inherit' }}>
+                      {selectedStudentModal.attendanceRate ?? 'N/A'}%
+                    </strong>
+                  </div>
+                </div>
+
+                {/* Actionable Interventions */}
+                <h4 style={{ fontSize: '0.9rem', marginBottom: '0.5rem' }}>Evidence-Based Improvement Interventions:</h4>
+                <div style={{ background: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: '6px', padding: '0.75rem 1rem' }}>
+                  <ul style={{ margin: 0, paddingLeft: '1.2rem', fontSize: '0.85rem', color: '#166534', lineHeight: 1.5 }}>
+                    {selectedStudentModal.interventions && selectedStudentModal.interventions.length > 0 ? (
+                      selectedStudentModal.interventions.map((item, idx) => (
+                        <li key={idx} style={{ marginBottom: '0.35rem' }}>{item}</li>
+                      ))
+                    ) : (
+                      <li>No specific intervention required. Maintain current academic trajectory and regular classroom attendance.</li>
+                    )}
+                  </ul>
                 </div>
               </div>
+            )}
 
-              {/* Feature Drivers */}
-              <h4 style={{ fontSize: '0.9rem', marginBottom: '0.5rem' }}>Key Factor Performance:</h4>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', marginBottom: '1.25rem' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem' }}>
-                  <span>Term Exam Baseline (83.5% weight):</span>
-                  <strong>{selectedStudentModal.midtermExamScore}%</strong>
-                </div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem' }}>
-                  <span>Homework Completion (5.8% weight):</span>
-                  <strong>{selectedStudentModal.assignmentCompletionRate}%</strong>
-                </div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem' }}>
-                  <span>Classroom Attendance (2.2% weight):</span>
-                  <strong style={{ color: selectedStudentModal.attendanceRate < 75 ? '#ef4444' : 'inherit' }}>
-                    {selectedStudentModal.attendanceRate}%
-                  </strong>
-                </div>
-              </div>
-
-              {/* Actionable Interventions */}
-              <h4 style={{ fontSize: '0.9rem', marginBottom: '0.5rem' }}>Evidence-Based Improvement Interventions:</h4>
-              <div style={{ background: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: '6px', padding: '0.75rem 1rem' }}>
-                <ul style={{ margin: 0, paddingLeft: '1.2rem', fontSize: '0.85rem', color: '#166534', lineHeight: 1.5 }}>
-                  {selectedStudentModal.interventions && selectedStudentModal.interventions.length > 0 ? (
-                    selectedStudentModal.interventions.map((item, idx) => (
-                      <li key={idx} style={{ marginBottom: '0.35rem' }}>{item}</li>
-                    ))
-                  ) : (
-                    <li>Maintain current academic trajectory and regular classroom attendance.</li>
-                  )}
-                </ul>
-              </div>
-            </div>
-
-            <div className="modal-footer" style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.5rem' }}>
+            <div className="modal-actions" style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.5rem' }}>
               <button className="btn btn-outline" onClick={() => setSelectedStudentModal(null)}>
                 Close
               </button>
