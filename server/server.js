@@ -9,7 +9,6 @@ const assignmentRoutes = require('./routes/assignmentRoutes');
 const academicRoutes = require('./routes/academicRoutes');
 const communicationRoutes = require('./routes/communicationRoutes');
 const financeRoutes = require('./routes/financeRoutes');
-const predictionRoutes = require('./routes/predictionRoutes');
 
 const app = express();
 
@@ -28,7 +27,6 @@ app.use('/api/assignments', assignmentRoutes);
 app.use('/api/academic', academicRoutes);
 app.use('/api/communication', communicationRoutes);
 app.use('/api/finance', financeRoutes);
-app.use('/api/predictions', predictionRoutes);
 
 // Basic health check route
 app.get('/api/health', (req, res) => {

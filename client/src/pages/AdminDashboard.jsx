@@ -11,7 +11,6 @@ import NoticesModule from './admin/modules/NoticesModule';
 import ComplaintsModule from './admin/modules/ComplaintsModule';
 import FeesModule from './admin/modules/FeesModule';
 import LeavesModule from './admin/modules/LeavesModule';
-import AIPredictionsModule from './admin/modules/AIPredictionsModule';
 import {
   AssignmentsModule,
   ExamsModule,
@@ -95,8 +94,6 @@ const AdminDashboard = () => {
         return <TimetableModule />;
       case 'reports':
         return <ReportsModule />;
-      case 'ai-predictions':
-        return <AIPredictionsModule />;
       case 'settings':
         return <SettingsModule />;
       default:

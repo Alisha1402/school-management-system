@@ -17,7 +17,6 @@ The **School Management System** is a unified web portal designed to eliminate m
 
 ## 🚀 Features
 
-- 🤖 **AI Performance Prediction & Early Warning System**: Supervised machine learning engine (RandomForestRegressor v1.0.0, Hold-out $R^2 = 0.9155$, $\text{MAE} = 2.77\%$) estimating annual examination scores, CBSE grades ($A1-E$), and academic risk indices with evidence-based pedagogical improvement recommendations.
 - 🔐 **Multi-Role Authentication & RBAC**: Strict separation of concerns across Admin, Teacher, and Student roles with bcrypt password hashing and 24-hour expiring JWT tokens.
 - 🎓 **Student Lifecycle Management**: Comprehensive student registration with CBSE Admission Numbers (`ADM/2026/0101`), Roll Numbers, Aadhaar records, and parent contact details.
 - 👨‍🏫 **Faculty Directory & Workload**: Teacher profiles with Employee IDs (`EMP-101`), Indian qualifications (M.Sc, B.Ed), subject allocations, and classroom assignments.
@@ -193,24 +192,16 @@ PORT=5000
 MONGO_URI=mongodb://127.0.0.1:27017/school_management
 JWT_SECRET=supersecretjwtkey_school_mgmt_2026
 JWT_EXPIRES_IN=24h
-FASTAPI_AI_URL=http://127.0.0.1:8000
-AI_SERVICE_API_KEY=
 NODE_ENV=development
 ```
 
-### 3. Install Dependencies & ML Service
+### 3. Install Dependencies
 ```bash
-# 1. Install & Run Python AI Microservice
-cd ml_service
-pip install -r requirements.txt
-python train_model.py
-python -m uvicorn main:app --host 127.0.0.1 --port 8000
-
-# 2. Install Server Dependencies
-cd ../server
+# 1. Install Server Dependencies
+cd server
 npm install
 
-# 3. Install Client Dependencies
+# 2. Install Client Dependencies
 cd ../client
 npm install
 ```
@@ -277,7 +268,7 @@ npm run dev
 - 🚌 **Live GPS Transport Tracking**: Real-time school bus location map with geofenced arrival alerts.
 - 📱 **Mobile Native Application**: React Native mobile app for iOS and Android.
 - 💳 **Integrated Payment Gateway**: Automated UPI webhooks and Razorpay/Paytm checkout integration.
-- 🤖 **AI Academic Tutor**: AI-assisted doubt solving and automated homework hints based on NCERT syllabus.
+- 📲 **Automated WhatsApp / SMS Notifications**: Real-time attendance alerts and circular broadcasts sent directly to parents' mobile phones.
 
 ---
 
